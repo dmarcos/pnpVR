@@ -4,7 +4,11 @@ SRC_DIR             = src
 BIN_DIR             = bin
 LIB_DIR             = lib
 
-all: hwMonitor hwMonitor.dylib
+all: directories hwMonitor hwMonitor.dylib
+
+directories:
+	test -d "lib" || mkdir -p "lib"
+	test -d "bin" || mkdir -p "bin"
 
 helpers.o:
 	$(CLANG) -c helpers.m
