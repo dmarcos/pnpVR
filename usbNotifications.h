@@ -1,0 +1,1 @@
+void startMonitoringUSBDevices(void (*)(int));
