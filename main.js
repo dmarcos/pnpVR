@@ -5,32 +5,22 @@ var app = express();
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 var port = process.env.PORT || 3000;
-var ref = require('ref');
-var ffi = require('ffi');
+var child = require('child_process');
+var hwMonitor;
 
-var callbackPointer = ffi.Function('void', ['int']);
-
-// binding to functions in libHWMonitor
-var libHWMonitor = ffi.Library('lib/libHWMonitor', {
-  'startMonitoring': [ 'void', [callbackPointer, callbackPointer] ]
-});
-
-server.listen(port, function () {
-  console.log('Server listening at port %d', port);
-});
-
-// Routing
+// Configuration
 app.use(express.static(__dirname + '/public'));
 app.use(bodyParser());
 app.use(bodyParser.json({ type: 'application/json' }))
 
-// RIFT State
-var riftConnected = false;
+var riftConnected;
 
+// Routing
 app.put('/rift/display', function(req, res) {
+  console.log("PUT PUT");
   if (req.body.status !== undefined) {
     riftConnected = !!(req.body.status);
-    console.log(riftConnected);
+    console.log("PUT RIFT DISPLAY");
   }
   res.send(riftConnected);
 });
@@ -39,30 +29,20 @@ app.get('/rift/display', function(req, res) {
   res.send(riftConnected);
 });
 
+hwMonitor = child.fork('hwMonitor');
 
 io.on('connection', function (socket) {
-  var onRiftDisplayChanged = function(connected) {
-    socket.broadcast.emit('rift display status', {
-      connected: connected
-    });
-    if (connected) {
-      console.log("RIFT DISPLAY CONNECTED");
-    } else {
-      console.log("RIFT DISPLAY DISCONNECTED");
+  hwMonitor.on('message', function(m) {
+    console.log('YEAH! PARENT got message:', m);
+    if (m.display !== undefined) {
+      socket.broadcast.emit('display', m.display);
     }
-  };
-
-  var onRiftTrackerChanged = function(connected) {
-    socket.broadcast.emit('rift tracker status', {
-      connected: connected
-    });
-    if (connected) {
-      console.log("RIFT TRACKER CONNECTED");
-    } else {
-      console.log("RIFT TRACKER DISCONNECTED");
+    if (m.tracker !== undefined) {
+      socket.broadcast.emit('tracker', m.tracker);
     }
-  };
+  });
+});
 
-  libHWMonitor.startMonitoring(onRiftDisplayChanged, onRiftTrackerChanged);
-
+server.listen(port, function () {
+  console.log('Server listening at port %d', port);
 });

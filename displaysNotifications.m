@@ -111,6 +111,8 @@ static const char* getDisplayName(CGDirectDisplayID displayID)
 void DisplayChanged(CGDirectDisplayID displayId, CGDisplayChangeSummaryFlags flags, void* userInfo)
 {
   const char* displayName = getDisplayName(displayId);
+  CGError err;
+  CGDisplayConfigRef configRef;
     // if(display == someDisplayYouAreInterestedIn)
     // {
   NSLog(@"DISPLAY CHANGED");
@@ -118,14 +120,23 @@ void DisplayChanged(CGDirectDisplayID displayId, CGDisplayChangeSummaryFlags fla
   {
     NSLog(@"CONNECTED");
     printf("DISPLAY %s\n" , displayName);
-    if (strcmp(displayName, "Rift DK") == 0) {
-      onRiftDisplayChanged(1);
+    if (strcmp(displayName, "Rift DK") == 0 ||
+        strcmp(displayName, "DELL U2410") == 0) {
+      err = CGBeginDisplayConfiguration(&configRef);
+      err = CGConfigureDisplayOrigin(configRef, displayId, 4000, 0);
+      if(err){
+        err = CGCancelDisplayConfiguration(configRef);
+      }
+      else{
+        err = CGCompleteDisplayConfiguration(configRef,1);
+      }
+      onRiftDisplayChanged(true);
     }
   }
   if(flags & kCGDisplayRemoveFlag)
   {
     NSLog(@"REMOVED");
-    onRiftDisplayChanged(0);
+    onRiftDisplayChanged(false);
   }
   if(flags & kCGDisplayDisabledFlag)
   {

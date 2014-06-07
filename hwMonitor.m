@@ -21,8 +21,8 @@ void init_signal_handler()
 int startMonitoring(void (*onRiftDisplayChanged)(int), void (*onRiftTrackerChanged)(int))
 {
   init_signal_handler();
-  startMonitoringUSBDevices(onRiftTrackerChanged);
   startMonitoringDisplays(onRiftDisplayChanged);
+  startMonitoringUSBDevices(onRiftTrackerChanged);
   CFRunLoopRun();  // run the event loop
   return 0;
 }
@@ -30,8 +30,8 @@ int startMonitoring(void (*onRiftDisplayChanged)(int), void (*onRiftTrackerChang
 int main(int argc, char *argv[])
 {
   init_signal_handler();
-  startMonitoringUSBDevices(&defaultCallback);
   startMonitoringDisplays(&defaultCallback);
+  startMonitoringUSBDevices(&defaultCallback);
   CFRunLoopRun();  // run the event loop
   return 0;
 }

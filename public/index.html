@@ -6,8 +6,22 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="main"></div>
-  <script src="/socket.io/socket.io.js"></script>
+  <div class="container traditional">
+    <canvas class="canvas intro"></canvas>
+    <div class="title">
+      <div class="face front">Plug <span style="color: rgb(134, 144, 140);">VR</span> Play</div>
+      <div class="face back flipped">Oculus Rift <span class="connected on">Connected</span>
+      <span class="connected off hidden">Disconnected</span></div>
+    </div>
+  </div>
+  <div class="container vr hidden"></div>
+  <script src="js/helpers.js"></script>
   <script src="/main.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="js/vendor/vr.js"></script>
+  <script src="js/vendor/three.js"></script>
+  <script src="js/vendor/OculusRiftControls.js"></script>
+  <script src="js/vendor/OculusRiftEffect.js"></script>
+  <script src="/vr.js"></script>
 </body>
 </html>
